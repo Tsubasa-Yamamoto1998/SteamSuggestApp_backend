@@ -18,11 +18,12 @@
 # CORSの設定（Vueからアクセス許可）
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'http://localhost:5173'  # Vue側のポート
+    origins "http://localhost:5173"  # Vue側のポート
 
-    resource '*',
+    resource "*",
       headers: :any,
-      methods: %i[get post put patch delete options head]
+      expose: [ "access-token", "expiry", "token-type", "uid", "client" ],
+      methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
+      credentials: true # クッキーや認証情報を許可
   end
 end
-
