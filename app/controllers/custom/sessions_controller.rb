@@ -1,39 +1,71 @@
 class Custom::SessionsController < DeviseTokenAuth::SessionsController
   include ActionController::Cookies # Cookies機能を有効化
-
   wrap_parameters format: []
 
   # 認証状態を確認するエンドポイント
   def check_auth
-    Rails.logger.debug "Checking authentication for user: #{current_user.inspect}"
-    Rails.logger.debug "Request Headers: #{request.headers.to_h}"
-    Rails.logger.debug "Request Cookies: #{cookies.to_hash}"
+    # クッキーから認証情報を取得
+    uid = cookies["uid"]
+    client = cookies["client"]
+    access_token = cookies["access-token"]
 
-    if current_user
-      # トークンを更新
-      token = current_user.create_new_auth_token
-      Rails.logger.debug "Generated Token: #{token}"
+    # ユーザーを検索してトークンを検証
+    user = User.find_by(uid: uid)
+    if user && user.valid_token?(access_token, client)
+      @current_user = user
 
-      # レスポンスヘッダーにトークンを追加
-      response.headers.merge!(token)
-      Rails.logger.debug "Response Headers: #{response.headers.to_h}"
+      # トークンを更新（クッキーに保存するため、レスポンスヘッダーには追加しない）
+      token = user.create_new_auth_token
+
+      # クッキーにトークンを再設定
+      self.cookies["access-token"] = {
+        value: token["access-token"],
+        httponly: true,
+        secure: Rails.env.production?,
+        same_site: :lax
+      }
+      self.cookies["client"] = {
+        value: token["client"],
+        httponly: true,
+        secure: Rails.env.production?,
+        same_site: :lax
+      }
+      self.cookies["uid"] = {
+        value: token["uid"],
+        httponly: true,
+        secure: Rails.env.production?,
+        same_site: :lax
+      }
 
       render json: {
         is_logged_in: true,
+        is_steam_id: user.steam_id.present?, # steam_idが存在するかを確認
         user: {
-          id: current_user.id,
-          name: current_user.name,
-          email: current_user.email
+          id: user.id,
+          name: user.username
         }
       }, status: :ok
     else
-      Rails.logger.debug "Authentication failed: current_user is nil"
       render json: { is_logged_in: false }, status: :unauthorized
     end
   end
 
   # ログアウト処理
   def logout
+    uid = cookies["uid"]
+    client = cookies["client"]
+    access_token = cookies["access-token"]
+
+    return unless uid && client && access_token
+
+    # ユーザーを検索
+    user = User.find_by(uid: uid)
+    if user && user.valid_token?(access_token, client)
+      current_user = user
+    else
+      current_user = nil
+    end
+
     if current_user
       # トークンを無効化
       current_user.tokens = {}
@@ -62,42 +94,34 @@ class Custom::SessionsController < DeviseTokenAuth::SessionsController
 
   # レスポンスカスタマイズ
   def render_create_success
-    Rails.logger.debug "Creating session for resource: #{@resource.inspect}"
-    super # DeviseTokenAuthのデフォルト処理を呼び出す
-
     # トークン生成
     token = @resource.create_new_auth_token
-    Rails.logger.debug "Generated Token: #{token}"
 
-    # レスポンスヘッダーに追加
-    response.headers.merge!(token)
-    Rails.logger.debug "Response Headers after merge: #{response.headers.to_h}"
-
-    # Cookieにトークンを設定
+    # クッキーにトークンを設定
     self.cookies["access-token"] = {
       value: token["access-token"],
       httponly: true,
-      secure: Rails.env.production? && request.ssl?,
-      same_site: :none # 異なるオリジン間でクッキーを送信する場合は :none
+      secure: false, # 開発環境では secure を false に設定、以下同様
+      same_site: :lax # 開発環境では :lax を使用
     }
+
     self.cookies["client"] = {
       value: token["client"],
       httponly: true,
-      secure: Rails.env.production? && request.ssl?,
-      same_site: :none
+      secure: false,
+      same_site: :lax
     }
+
     self.cookies["uid"] = {
       value: token["uid"],
       httponly: true,
-      secure: Rails.env.production? && request.ssl?,
-      same_site: :none
+      secure: false,
+      same_site: :lax
     }
 
-    Rails.logger.debug "Cookies after setting: #{self.cookies.to_hash}"
-
-    # render json: {
-    #   user: resource_data(resource_json: @resource.token_validation_response),
-    #   message: "ログイン成功"
-    # }
+    render json: {
+      user: resource_data(resource_json: @resource.token_validation_response),
+      message: "ログイン成功"
+    }
   end
 end

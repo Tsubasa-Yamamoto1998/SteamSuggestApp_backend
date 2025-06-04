@@ -12,6 +12,9 @@ Rails.application.routes.draw do
         get :check_auth, on: :collection
         delete :logout, on: :collection
       end
+
+      # UsersControllerのルーティングをdevise_scope内に移動
+      resource :users, only: [ :update ]
     end
 
     post "steam/register", to: "steam#register"

@@ -31,7 +31,7 @@ module Backend
     config.log_level = :debug
 
     # devise token authのトークンベース認証とdeviseのセッション認証が競合するため、セッションを無効化
-    config.middleware.delete ActionDispatch::Session::CookieStore
-    config.middleware.delete ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore
   end
 end

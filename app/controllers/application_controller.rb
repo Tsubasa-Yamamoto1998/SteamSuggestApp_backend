@@ -1,35 +1,41 @@
 class ApplicationController < ActionController::API
-        include DeviseTokenAuth::Concerns::SetUserByToken
+  include ActionController::Cookies # クッキー機能を有効化
 
-  ## セッション認証を無視してトークン認証のみを使用
+  before_action :set_user_by_token
+
+  # 認証が必要なアクションで使用
   def authenticate_user!
-    uid = request.headers["uid"]
-    client = request.headers["client"]
-    access_token = request.headers["access-token"]
-
-    user = User.find_by(uid: uid)
-    if user && user.valid_token?(access_token, client)
-      @current_user = user
-    else
-      render json: { error: "Unauthorized" }, status: :unauthorized
-    end
-
+    Rails.logger.debug "Authenticating user: #{current_user}" # デバッグログ
     unless current_user
       render json: { error: "Unauthorized" }, status: :unauthorized
     end
   end
-end
 
-# DeviseTokenAuthの内部で呼び出されるbypass_sign_inを無効化、これがセッション認証を前提としたメソッドのため
-module DeviseTokenAuth
-  module Concerns
-    module SetUserByToken
-      def set_user_by_token(mapping = nil)
-        # bypass_sign_inを無効化
-        if @resource && respond_to?(:bypass_sign_in)
-          Rails.logger.debug "Skipping bypass_sign_in to avoid session dependency"
-        end
-      end
+  private
+
+  # DeviseTokenAuthのset_user_by_tokenをオーバーライド
+  def set_user_by_token(mapping = nil)
+    # クッキーからトークン情報を取得
+    uid = cookies["uid"]
+    client = cookies["client"]
+    access_token = cookies["access-token"]
+
+    # トークンが存在しない場合は認証失敗
+    return unless uid && client && access_token
+
+    # ユーザーを検索してトークンを検証
+    user = User.find_by(uid: uid)
+    if user && user.valid_token?(access_token, client)
+      Rails.logger.debug "User authenticated: #{user.inspect}" # デバッグログ
+      @current_user = user
+    else
+      Rails.logger.debug "Authentication failed for UID: #{uid}" # デバッグログ
+      @current_user = nil
     end
+  end
+
+  # current_userをオーバーライドして@current_userを返す
+  def current_user
+    @current_user
   end
 end
