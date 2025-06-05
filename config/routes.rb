@@ -13,12 +13,12 @@ Rails.application.routes.draw do
         delete :logout, on: :collection
       end
 
-      # UsersControllerのルーティングをdevise_scope内に移動
       resource :users, only: [ :update ]
     end
 
     post "steam/register", to: "steam#register"
     get "steam/library", to: "steam#library"
+    post "youtube/search", to: "youtube#search"
   end
 
   # devise_for :users
