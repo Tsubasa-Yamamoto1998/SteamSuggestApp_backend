@@ -16,9 +16,12 @@
 # end
 
 # CORSの設定（Vueからアクセス許可）
+require "dotenv"
+Dotenv.load(".env.#{Rails.env}") # 環境に応じた.envファイルを読み込む
+
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins "http://localhost:5173"  # Vue側のポート
+    origins ENV["VUE_APP_URL"] # 環境変数からURLを取得
 
     resource "*",
       headers: :any,
