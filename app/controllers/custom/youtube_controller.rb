@@ -1,5 +1,5 @@
 class Custom::YoutubeController < ApplicationController
-  require "net/http"
+  require "httparty"
   require "json"
 
   def search
@@ -22,34 +22,43 @@ class Custom::YoutubeController < ApplicationController
 
   def fetch_youtube_videos(game_title)
     api_key = ENV["YOUTUBE_API_KEY"] # 環境変数からAPIキーを取得
+    if api_key.blank?
+      raise "YouTube APIキーが設定されていません"
+    end
+
     base_url = "https://www.googleapis.com/youtube/v3/search"
     query_params = {
       part: "snippet",
-      q: game_title,
+      q: "#{game_title} 日本語 実況 ゲームプレイ", # 検索キーワードを追加
       type: "video",
       maxResults: 5,
+      order: "viewCount", # 再生回数の多い順にソート
       key: api_key
     }
 
-    uri = URI(base_url)
-    uri.query = URI.encode_www_form(query_params)
+    response = HTTParty.get(base_url, query: query_params)
 
-    response = Net::HTTP.get_response(uri)
-    if response.is_a?(Net::HTTPSuccess)
-      data = JSON.parse(response.body)
-      format_youtube_response(data)
+    if response.success?
+      format_youtube_response(response.parsed_response)
     else
-      raise "YouTube APIエラー: #{response.message}"
+      raise "YouTube APIエラー: #{response.message} (HTTP #{response.code})"
     end
   end
 
   def format_youtube_response(data)
+    return [] unless data["items"] # itemsが存在しない場合は空配列を返す
+
     data["items"].map do |item|
+      # 必要なデータが存在するか確認
+      next unless item["id"] && item["id"]["kind"] == "youtube#video" && item["id"]["videoId"]
+      next unless item["snippet"] && item["snippet"]["thumbnails"] && item["snippet"]["thumbnails"]["default"]
+
+      # データを整形
       {
-        title: item["snippet"]["title"],
+        title: item["snippet"]["title"].to_s.strip, # タイトルを文字列として扱い、余分な空白を削除
         url: "https://www.youtube.com/watch?v=#{item['id']['videoId']}",
-        thumbnail: item["snippet"]["thumbnails"]["default"]["url"]
+        thumbnail: item["snippet"]["thumbnails"]["default"]["url"].to_s.strip # サムネイルURLを文字列として扱い、余分な空白を削除
       }
-    end
+    end.compact # nilを除外
   end
 end

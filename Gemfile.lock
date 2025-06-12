@@ -87,6 +87,7 @@ GEM
     connection_pool (2.5.3)
     crass (1.0.6)
     csv (3.3.4)
+    dalli (3.2.8)
     date (3.4.1)
     debug (1.10.0)
       irb (~> 1.10)
@@ -342,6 +343,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   brakeman
+  dalli
   debug
   devise
   devise_token_auth
