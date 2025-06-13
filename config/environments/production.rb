@@ -53,17 +53,24 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  require "dotenv"
+  Dotenv.load(".env.#{Rails.env}") # 環境に応じた.envファイルを読み込む
+
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: ENV["BREVO_SMTP_SERVER"], # BrevoのSMTPサーバー
+    port: ENV["BREVO_SMTP_PORT"],      # ポート番号
+    domain: ENV["APP_DOMAIN"],               # フロントエンドのドメイン
+    user_name: ENV["BREVO_SMTP_USERNAME"], # BrevoのLogin値
+    password: ENV["BREVO_SMTP_PASSWORD"], # Brevoで生成したAPIキー
+    authentication: :login,
+    enable_starttls_auto: true
+  }
+
+  config.action_mailer.default_url_options = { host: ENV["APP_HOST"], protocol: "https" }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
