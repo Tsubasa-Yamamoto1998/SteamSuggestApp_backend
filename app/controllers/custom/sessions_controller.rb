@@ -101,25 +101,25 @@ class Custom::SessionsController < DeviseTokenAuth::SessionsController
     self.cookies["access-token"] = {
       value: token["access-token"],
       httponly: true,
-      secure: Rails.env.production?,
+      secure: true,
       same_site: :none,
-      domain: Rails.env.production? ? ENV["APP_HOST"] : nil # 環境変数を使用
+      domain: ENV["APP_HOST"]
     }
 
     self.cookies["client"] = {
       value: token["client"],
       httponly: true,
-      secure: Rails.env.production?,
+      secure: true,
       same_site: :none,
-      domain: Rails.env.production? ? ENV["APP_HOST"] : nil
+      domain: ENV["APP_HOST"]
     }
 
     self.cookies["uid"] = {
       value: token["uid"],
       httponly: true,
-      secure: Rails.env.production?,
+      secure: true,
       same_site: :none,
-      domain: Rails.env.production? ? ENV["APP_HOST"] : nil
+      domain: ENV["APP_HOST"]
     }
 
     render json: {
