@@ -38,13 +38,22 @@ class Custom::SteamController < ApplicationController
         }
       })
 
+      if response.code == 429
+        sleep(5) # 5秒待機して再試行
+        response = HTTParty.get("https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/", {
+          query: {
+            key: ENV["STEAM_API_KEY"],
+            steamid: steam_id,
+            include_appinfo: true,
+            include_played_free_games: true
+          }
+        })
+      end
+
       if response.code == 200
         parsed_response = response.parsed_response
-        # Memcachedに保存（例: 1時間有効）
-        Rails.cache.write(cache_key, parsed_response, expires_in: 1.hour)
+        Rails.cache.write(cache_key, parsed_response, expires_in: 24.hours)
         render json: parsed_response
-      elsif response.code == 429
-        render json: { error: "Rate limit exceeded. Please try again later." }, status: :too_many_requests
       else
         render json: { error: "Failed to fetch Steam data", details: response.body }, status: :bad_gateway
       end
