@@ -102,21 +102,24 @@ class Custom::SessionsController < DeviseTokenAuth::SessionsController
       value: token["access-token"],
       httponly: true,
       secure: true,
-      same_site: :none
+      same_site: :none,
+      domain: ".sg-app.jp"
     }
 
     self.cookies["client"] = {
       value: token["client"],
       httponly: true,
       secure: true,
-      same_site: :none
+      same_site: :none,
+      domain: ".sg-app.jp"
     }
 
     self.cookies["uid"] = {
       value: token["uid"],
       httponly: true,
       secure: true,
-      same_site: :none
+      same_site: :none,
+      domain: ".sg-app.jp"
     }
 
     render json: {
