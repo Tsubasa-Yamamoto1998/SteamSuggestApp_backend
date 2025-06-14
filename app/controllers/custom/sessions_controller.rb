@@ -101,22 +101,22 @@ class Custom::SessionsController < DeviseTokenAuth::SessionsController
     self.cookies["access-token"] = {
       value: token["access-token"],
       httponly: true,
-      secure: false, # 開発環境では secure を false に設定、以下同様
-      same_site: :lax # 開発環境では :lax を使用
+      secure: Rails.env.production?, # 本番環境では secure を true に設定
+      same_site: :none # クロスサイトリクエストを許可する場合は :none を使用
     }
 
     self.cookies["client"] = {
       value: token["client"],
       httponly: true,
-      secure: false,
-      same_site: :lax
+      secure: Rails.env.production?,
+      same_site: :none
     }
 
     self.cookies["uid"] = {
       value: token["uid"],
       httponly: true,
-      secure: false,
-      same_site: :lax
+      secure: Rails.env.production?,
+      same_site: :none
     }
 
     render json: {
