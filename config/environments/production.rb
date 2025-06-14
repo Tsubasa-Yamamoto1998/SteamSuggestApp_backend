@@ -85,7 +85,7 @@ Rails.application.configure do
   # Enable DNS rebinding protection and other `Host` header attacks.
   # 許可するホストを追加
   config.hosts << "sg-app.jp"
-  config.hosts << "steam-suggest-app-ec1021409b85.herokuapp.com"
+  config.hosts << "api.sg-app.jp"
 
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
