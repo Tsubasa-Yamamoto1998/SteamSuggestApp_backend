@@ -1,11 +1,8 @@
 class Custom::ConfirmationsController < DeviseTokenAuth::ConfirmationsController
   def show
     super do |resource|
-      if resource.errors.empty?
-        redirect_to(safe_redirect_url(params[:redirect_url], success: true)) and return
-      else
-        redirect_to(safe_redirect_url(params[:redirect_url], success: false)) and return
-      end
+      redirect_url = safe_redirect_url(params[:redirect_url], success: resource.errors.empty?)
+      redirect_to(redirect_url, allow_other_host: true) and return
     end
   end
 
