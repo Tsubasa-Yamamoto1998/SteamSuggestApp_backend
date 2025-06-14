@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
   mount_devise_token_auth_for "User", at: "auth", controllers: {
     sessions: "custom/sessions",
-    registrations: "custom/registrations"
+    registrations: "custom/registrations",
+    confirmations: "custom/confirmations"
   }
   use_doorkeeper
 
