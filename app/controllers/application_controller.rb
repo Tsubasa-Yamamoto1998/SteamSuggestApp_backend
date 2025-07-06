@@ -5,7 +5,6 @@ class ApplicationController < ActionController::API
 
   # 認証が必要なアクションで使用
   def authenticate_user!
-    Rails.logger.debug "Authenticating user: #{current_user}" # デバッグログ
     unless current_user
       render json: { error: "Unauthorized" }, status: :unauthorized
     end
@@ -26,10 +25,8 @@ class ApplicationController < ActionController::API
     # ユーザーを検索してトークンを検証
     user = User.find_by(uid: uid)
     if user && user.valid_token?(access_token, client)
-      Rails.logger.debug "User authenticated: #{user.inspect}" # デバッグログ
       @current_user = user
     else
-      Rails.logger.debug "Authentication failed for UID: #{uid}" # デバッグログ
       @current_user = nil
     end
   end

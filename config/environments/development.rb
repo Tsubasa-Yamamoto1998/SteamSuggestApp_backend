@@ -45,10 +45,10 @@ Rails.application.configure do
     port: 587,
     domain: "example.com",
     user_name: "tsubasayamamoto1027@gmail.com",
-    password: "luvf dcvw ggug ktui", # gmailアプリケーション固有のパスワードを使用（envファイルに設定して呼び出す修正する！）
+    password: ENV["GMAIL_APP_PASSWORD"], # 環境変数からパスワードを取得
     authentication: "plain",
     enable_starttls_auto: true,
-    openssl_verify_mode: "none" # 証明書検証をスキップ（本番では修正すべき！）
+    openssl_verify_mode: "none" # 開発環境のみで使用。
   }
 
   # Print deprecation notices to the Rails logger.

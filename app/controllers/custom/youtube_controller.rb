@@ -31,7 +31,7 @@ class Custom::YoutubeController < ApplicationController
       part: "snippet",
       q: "#{game_title} 日本語 実況 ゲームプレイ", # 検索キーワードを追加
       type: "video",
-      maxResults: 5,
+      maxResults: 20,
       order: "viewCount", # 再生回数の多い順にソート
       key: api_key
     }
@@ -51,13 +51,20 @@ class Custom::YoutubeController < ApplicationController
     data["items"].map do |item|
       # 必要なデータが存在するか確認
       next unless item["id"] && item["id"]["kind"] == "youtube#video" && item["id"]["videoId"]
-      next unless item["snippet"] && item["snippet"]["thumbnails"] && item["snippet"]["thumbnails"]["default"]
+      next unless item["snippet"] && item["snippet"]["thumbnails"]
+
+      # サムネイルの解像度を選択 (high > medium > default)
+      thumbnail_url = item["snippet"]["thumbnails"]["high"]&.dig("url") ||
+                      item["snippet"]["thumbnails"]["medium"]&.dig("url") ||
+                      item["snippet"]["thumbnails"]["default"]&.dig("url")
+
+      next unless thumbnail_url # サムネイルURLが存在しない場合はスキップ
 
       # データを整形
       {
         title: item["snippet"]["title"].to_s.strip, # タイトルを文字列として扱い、余分な空白を削除
         url: "https://www.youtube.com/watch?v=#{item['id']['videoId']}",
-        thumbnail: item["snippet"]["thumbnails"]["default"]["url"].to_s.strip # サムネイルURLを文字列として扱い、余分な空白を削除
+        thumbnail: thumbnail_url.to_s.strip # サムネイルURLを文字列として扱い、余分な空白を削除
       }
     end.compact # nilを除外
   end

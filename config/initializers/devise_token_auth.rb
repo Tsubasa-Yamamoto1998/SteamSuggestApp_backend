@@ -4,7 +4,7 @@ DeviseTokenAuth.setup do |config|
   # 本番環境ではdotenvを使用しないのでコメントアウト
   # require "dotenv"
   # Dotenv.load(".env.#{Rails.env}") # 環境に応じた.envファイルを読み込む
-  config.default_confirm_success_url = ENV["FRONTEND_CONFIRM_SUCCESS_URL"] # 本番環境ではenvファイルに設定して呼び出す修正する！
+  config.default_confirm_success_url = ENV["FRONTEND_CONFIRM_SUCCESS_URL"]
 
   # By default the authorization headers will change after each request. The
   # client is responsible for keeping track of the changing tokens. Change

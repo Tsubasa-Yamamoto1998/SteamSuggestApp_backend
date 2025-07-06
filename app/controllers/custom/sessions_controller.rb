@@ -72,9 +72,9 @@ class Custom::SessionsController < DeviseTokenAuth::SessionsController
       current_user.save
 
       # クッキーを削除
-      cookies.delete("access-token", secure: Rails.env.production?, same_site: :strict)
-      cookies.delete("client", secure: Rails.env.production?, same_site: :strict)
-      cookies.delete("uid", secure: Rails.env.production?, same_site: :strict)
+      cookies.delete("access-token", secure: false, same_site: :lax)
+      cookies.delete("client", secure: false, same_site: :lax)
+      cookies.delete("uid", secure: false, same_site: :lax)
 
       render json: { message: "ログアウト成功" }, status: :ok
     else
@@ -101,25 +101,22 @@ class Custom::SessionsController < DeviseTokenAuth::SessionsController
     self.cookies["access-token"] = {
       value: token["access-token"],
       httponly: true,
-      secure: true,
-      same_site: :none,
-      domain: ".sg-app.jp"
+      secure: false, # 開発環境では secure を false に設定、以下同様
+      same_site: :lax # 開発環境では :lax を使用
     }
 
     self.cookies["client"] = {
       value: token["client"],
       httponly: true,
-      secure: true,
-      same_site: :none,
-      domain: ".sg-app.jp"
+      secure: false,
+      same_site: :lax
     }
 
     self.cookies["uid"] = {
       value: token["uid"],
       httponly: true,
-      secure: true,
-      same_site: :none,
-      domain: ".sg-app.jp"
+      secure: false,
+      same_site: :lax
     }
 
     render json: {
