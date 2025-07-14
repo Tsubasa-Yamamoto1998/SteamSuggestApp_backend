@@ -15,6 +15,7 @@ class ApplicationController < ActionController::API
   # DeviseTokenAuthのset_user_by_tokenをオーバーライド
   def set_user_by_token(mapping = nil)
     # クッキーからトークン情報を取得
+
     uid = cookies["uid"]
     client = cookies["client"]
     access_token = cookies["access-token"]

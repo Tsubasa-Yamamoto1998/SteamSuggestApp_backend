@@ -37,7 +37,6 @@ class Custom::SteamController < ApplicationController
           include_played_free_games: true
         }
       })
-
       if response.code == 429
         sleep(5) # 5秒待機して再試行
         response = HTTParty.get("https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/", {
@@ -49,9 +48,8 @@ class Custom::SteamController < ApplicationController
           }
         })
       end
-
-      if response.code == 200
-        parsed_response = response.parsed_response
+      parsed_response = response.parsed_response
+      if response.code.to_i == 200 && parsed_response.is_a?(Hash) && parsed_response.any?
         Rails.cache.write(cache_key, parsed_response, expires_in: 24.hours)
         render json: parsed_response
       else

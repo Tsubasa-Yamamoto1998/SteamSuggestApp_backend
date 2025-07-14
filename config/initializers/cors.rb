@@ -19,7 +19,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins ENV["VUE_APP_URL"] # 環境変数からURLを取得
+    origins ENV.fetch("VUE_APP_URL", "http://localhost:5173") # デフォルト値を設定 # 環境変数からURLを取得
 
     resource "*",
       headers: :any,
