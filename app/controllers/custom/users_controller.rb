@@ -13,6 +13,6 @@ class Custom::UsersController < ApplicationController
   private
 
   def account_update_params
-    params.require(:user).permit(:username, :email, :password, :password_confirmation, :steam_id)
+    params.require(:user).permit(:username, :email, :steam_id)
   end
 end

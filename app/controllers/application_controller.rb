@@ -16,9 +16,9 @@ class ApplicationController < ActionController::API
   def set_user_by_token(mapping = nil)
     # クッキーからトークン情報を取得
 
-    uid = cookies["uid"]
-    client = cookies["client"]
-    access_token = cookies["access-token"]
+    uid = request.headers["uid"] || cookies["uid"]
+    client = request.headers["client"] || cookies["client"]
+    access_token = request.headers["access-token"] || cookies["access-token"]
 
     # トークンが存在しない場合は認証失敗
     return unless uid && client && access_token
