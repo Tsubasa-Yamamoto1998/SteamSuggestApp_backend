@@ -36,12 +36,19 @@ class Custom::YoutubeController < ApplicationController
       key: api_key
     }
 
-    response = HTTParty.get(base_url, query: query_params)
+    begin
+      # タイムアウト設定を追加
+      response = HTTParty.get(base_url, query: query_params, timeout: 10)
 
-    if response.success?
-      format_youtube_response(response.parsed_response)
-    else
-      raise "YouTube APIエラー: #{response.message} (HTTP #{response.code})"
+      if response.success?
+        format_youtube_response(response.parsed_response)
+      else
+        raise "YouTube APIエラー: #{response.message} (HTTP #{response.code})"
+      end
+    rescue Net::OpenTimeout, Net::ReadTimeout => e
+      raise "YouTube APIリクエストがタイムアウトしました: #{e.message}"
+    rescue StandardError => e
+      raise "YouTube API通信中にエラーが発生しました: #{e.message}"
     end
   end
 
