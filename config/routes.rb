@@ -20,6 +20,7 @@ Rails.application.routes.draw do
     post "steam/register", to: "steam#register"
     get "steam/library", to: "steam#library"
     post "youtube/search", to: "youtube#search"
+    post "auth/guest_login", to: "auth#guest_login"
   end
 
   # devise_for :users

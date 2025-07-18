@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies # クッキー機能を有効化
 
-  before_action :set_user_by_token
+  before_action :set_user_by_token, :authenticate
 
   # 認証が必要なアクションで使用
   def authenticate_user!
@@ -35,5 +35,15 @@ class ApplicationController < ActionController::API
   # current_userをオーバーライドして@current_userを返す
   def current_user
     @current_user
+  end
+
+  def authenticate
+    allowed_paths = [ "/custom/auth/guest_login" ]
+    return if allowed_paths.include?(request.path)
+
+    token = request.headers["Authorization"]
+    unless token == "Bearer #{ENV["ACCESS_TOKEN"]}"
+      render json: { error: "Unauthorized" }, status: :unauthorized
+    end
   end
 end
