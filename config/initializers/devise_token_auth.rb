@@ -68,4 +68,5 @@ DeviseTokenAuth.setup do |config|
   # devise confirmable module. If you want to use devise confirmable module and
   # send email, set it to true. (This is a setting for compatibility)
   config.send_confirmation_email = true
+  config.redirect_whitelist = [ "https://sg-app.jp", "https://www.sg-app.jp" ]
 end
