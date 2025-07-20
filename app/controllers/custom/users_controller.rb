@@ -4,11 +4,7 @@ class Custom::UsersController < ApplicationController
 
   def me
     if current_user
-      image_url = if current_user.profile_image.attached?
-                    url_for(current_user.profile_image)
-      else
-                    "http://localhost:3000/assets/default_profile_image.png" # デフォルト画像のパスを直接指定
-      end
+      image_url = url_for(current_user.profile_image) if current_user.profile_image.attached?
       render json: {
         user: current_user.as_json.merge(profile_image_url: image_url)
       }, status: :ok
