@@ -11,8 +11,10 @@ class Custom::RegistrationsController < DeviseTokenAuth::RegistrationsController
     yield resource if block_given?
 
     if resource.active_for_authentication?
-      token = resource.create_token
+      client_id = SecureRandom.uuid
+      token = resource.create_token(client_id)
       resource.save!
+      update_auth_header(resource)
       render_create_success
     else
       expire_data_after_sign_in!
