@@ -4,6 +4,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :trackable, :validatable,
          :confirmable, :omniauthable
   include DeviseTokenAuth::Concerns::User
+  has_one_attached :profile_image
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable

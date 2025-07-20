@@ -38,18 +38,39 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
 
   # Set localhost to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+  # config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+  # config.action_mailer.delivery_method = :smtp
+  # config.action_mailer.smtp_settings = {
+  #   address: "smtp.gmail.com",
+  #   port: 587,
+  #   domain: "gmail.com",
+  #   user_name: "tsubasayamamoto1027@gmail.com",
+  #   password: ENV["GMAIL_APP_PASSWORD"], # 環境変数からパスワードを取得
+  #   authentication: "plain",
+  #   enable_starttls_auto: true,
+  #   openssl_verify_mode: "none" # 開発環境のみで使用。
+  # }
+
+  # .env.development を読み込む
+  require "dotenv"
+  Dotenv.load(".env.development")
+
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.perform_caching = false
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: "smtp.gmail.com",
-    port: 587,
-    domain: "gmail.com",
-    user_name: "tsubasayamamoto1027@gmail.com",
-    password: ENV["GMAIL_APP_PASSWORD"], # 環境変数からパスワードを取得
-    authentication: "plain",
+    address: ENV["BREVO_SMTP_SERVER"],
+    port: ENV["BREVO_SMTP_PORT"],
+    domain: "localhost:5173", # フロントの開発用ドメインでOK
+    user_name: ENV["BREVO_SMTP_USERNAME"],
+    password: ENV["BREVO_SMTP_PASSWORD"],
+    authentication: :login,
     enable_starttls_auto: true,
-    openssl_verify_mode: "none" # 開発環境のみで使用。
+    openssl_verify_mode:  "none"
   }
+  config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+
+  config.force_ssl = false # ← 忘れずに明示的に
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
@@ -83,4 +104,14 @@ Rails.application.configure do
 
   # デバッグのためにログレベルを設定
   config.log_level = :debug
+
+  config.after_initialize do
+    ActiveStorage::Current.url_options = {
+      protocol: "http",
+      host: "localhost",
+      port: 3000
+    }
+  end
+
+  Rails.application.routes.default_url_options[:host] = "http://localhost:3000"
 end

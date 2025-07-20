@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies # クッキー機能を有効化
 
-  before_action :set_user_by_token, :authenticate
+  before_action :set_user_by_token
 
   # 認証が必要なアクションで使用
   def authenticate_user!
@@ -16,9 +16,10 @@ class ApplicationController < ActionController::API
   def set_user_by_token(mapping = nil)
     # クッキーからトークン情報を取得
 
-    uid = request.headers["uid"] || cookies["uid"]
-    client = request.headers["client"] || cookies["client"]
-    access_token = request.headers["access-token"] || cookies["access-token"]
+    uid = cookies["uid"]
+    client = cookies["client"]
+    access_token = cookies["access-token"]
+
 
     # トークンが存在しない場合は認証失敗
     return unless uid && client && access_token
@@ -35,15 +36,5 @@ class ApplicationController < ActionController::API
   # current_userをオーバーライドして@current_userを返す
   def current_user
     @current_user
-  end
-
-  def authenticate
-    allowed_paths = [ "/custom/auth/guest_login" ]
-    return if allowed_paths.include?(request.path)
-
-    token = request.headers["Authorization"]
-    unless token == "Bearer #{ENV["ACCESS_TOKEN"]}"
-      render json: { error: "Unauthorized" }, status: :unauthorized
-    end
   end
 end

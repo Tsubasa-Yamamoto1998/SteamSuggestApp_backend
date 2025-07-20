@@ -1,9 +1,9 @@
 class Custom::SteamController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [ :register ]
   require "httparty"
 
   def register
-    authenticate_user! # 明示的に呼び出し
+    authenticate_user! # before_actionの呼び出しだとなぜかエラーが出るので明示的に呼び出し
     steam_id = params[:steamID]
     return render json: { error: "No Steam ID provided" }, status: :bad_request unless steam_id
 

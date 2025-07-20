@@ -14,7 +14,10 @@ Rails.application.routes.draw do
         delete :logout, on: :collection
       end
 
-      resource :users, only: [ :update ]
+      resource :users, only: [] do
+        get :me, on: :collection
+        put :update, on: :collection
+      end
     end
 
     post "steam/register", to: "steam#register"

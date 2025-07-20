@@ -33,5 +33,17 @@ module Backend
     # devise token authのトークンベース認証とdeviseのセッション認証が競合するため、セッションを無効化
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore
+
+    config.after_initialize do
+      ActiveStorage::Current.url_options = {
+        protocol: "http",
+        host: "localhost",
+        port: 3000 # 開発環境なら
+      }
+    end
+
+    config.asset_host = nil
+    config.assets.compile = true
+    config.assets.paths << Rails.root.join("app", "assets", "images")
   end
 end
