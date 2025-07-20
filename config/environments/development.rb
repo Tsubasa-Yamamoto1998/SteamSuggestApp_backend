@@ -112,4 +112,6 @@ Rails.application.configure do
       port: 3000
     }
   end
+
+  Rails.application.routes.default_url_options[:host] = "http://localhost:3000"
 end

@@ -34,4 +34,15 @@ module Backend
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore
   end
+
+  config.after_initialize do
+    ActiveStorage::Current.url_options = {
+      protocol: "http",
+      host: "localhost",
+      port: 3000 # 開発環境なら
+    }
+  end
+  config.assets.compile = true
+  config.assets.paths << Rails.root.join("app", "assets", "images")
+  config.asset_host = nil
 end
