@@ -40,8 +40,8 @@ module Backend
         port: 3000 # 開発環境なら
       }
     end
+    config.asset_host = nil
     config.assets.compile = true
     config.assets.paths << Rails.root.join("app", "assets", "images")
-    config.asset_host = nil
   end
 end
