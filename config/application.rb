@@ -43,7 +43,5 @@ module Backend
     end
 
     config.asset_host = nil
-    config.assets.compile = true
-    config.assets.paths << Rails.root.join("app", "assets", "images")
   end
 end
