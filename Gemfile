@@ -65,3 +65,4 @@ end
 
 gem "rspec-rails", "~> 8.0", groups: [ :development, :test ]
 gem "sprockets-rails"
+gem "aws-sdk-s3", require: false
